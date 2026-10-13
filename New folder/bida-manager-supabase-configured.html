@@ -1,0 +1,692 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bida Manager — Quản lý quán bida</title>
+<style>
+:root{--bg:#0c1118;--panel:#151d28;--panel2:#1b2634;--line:#2a3748;--text:#edf3fa;--muted:#9aabba;--green:#35d39a;--red:#ff6f76;--amber:#f5c56b;--blue:#7db6ff}
+*{box-sizing:border-box}html{min-height:100%;background:var(--bg)}body{min-height:100vh;min-height:100dvh;margin:0;background:radial-gradient(circle at top right,#152538 0,#0c1118 42%);color:var(--text);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{padding:22px max(16px,calc((100% - 1180px)/2));border-bottom:1px solid var(--line);display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:#0c1118cc;position:sticky;top:0;z-index:3;backdrop-filter:blur(12px)}
+.brand{display:flex;align-items:center;gap:12px}.logo{width:45px;height:45px;border-radius:14px;background:linear-gradient(145deg,#35d39a,#147b63);display:grid;place-items:center;font-size:24px;box-shadow:0 8px 25px #35d39a22}.brand h1{font-size:19px;margin:0}.brand p{color:var(--muted);margin:2px 0 0;font-size:12px}
+.wrap{max-width:1180px;margin:auto;padding:24px 16px 50px}.topline{display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap;margin-bottom:18px}h2{font-size:23px;margin:0 0 5px}.muted{color:var(--muted)}.small{font-size:12px;color:var(--muted)}
+button,input,select{font:inherit}button{border:0;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:650;transition:.15s}button:hover{filter:brightness(1.08);transform:translateY(-1px)}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--green);outline-offset:2px}.primary{background:var(--green);color:#06241b}.secondary{background:#253447;color:var(--text);border:1px solid #35465a}.danger{background:#4b242b;color:#ffc5c8;border:1px solid #77373f}.ghost{background:transparent;border:1px solid var(--line);color:var(--text)}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:22px}.stat,.panel,.table-card{background:linear-gradient(150deg,#182330,#121a24);border:1px solid var(--line);border-radius:16px}.stat{padding:17px}.stat .label{color:var(--muted);font-size:13px}.stat .value{font-size:clamp(19px,2.4vw,28px);font-weight:800;letter-spacing:-.5px;margin:9px 0 3px;overflow-wrap:anywhere}.stat .hint{font-size:12px;color:var(--muted)}.stat.green .value{color:var(--green)}
+.tabs{display:flex;gap:8px;overflow:auto;padding:4px 0 14px;margin-bottom:8px}.tab{background:transparent;border:1px solid var(--line);color:var(--muted);white-space:nowrap}.tab.active{background:#213c37;border-color:#286e5b;color:#8af0c9}
+.section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:8px 0 14px}.section-head h3{margin:0;font-size:17px}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}.table-card{padding:16px;position:relative;overflow:hidden}.table-card.playing{border-color:#267a60}.table-card.playing:before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:var(--green)}.table-top{display:flex;justify-content:space-between;align-items:center;gap:8px}.table-top h3{margin:0;font-size:17px}.pill{border-radius:999px;padding:4px 9px;font-size:11px;font-weight:750;background:#293443;color:#aab8c7}.pill.on{background:#183e32;color:#7ce9bd}.timer{font-size:25px;font-weight:800;margin:17px 0 3px;font-variant-numeric:tabular-nums}.price{font-size:18px;color:var(--green);font-weight:750}.table-actions{display:flex;gap:8px;margin-top:15px}.table-actions button{flex:1;padding:9px 8px;font-size:13px}
+.panel{padding:18px;margin-bottom:16px}.form-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.field{display:flex;flex-direction:column;gap:6px}.field label{font-size:12px;color:var(--muted)}input,select{width:100%;min-width:0;background:#0e151e;border:1px solid #334155;border-radius:9px;padding:10px 11px;color:var(--text)}input[type=month],input[type=date]{color-scheme:dark}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.table-wrap{overflow:auto}table{border-collapse:collapse;width:100%;min-width:620px}th,td{text-align:left;padding:12px 10px;border-bottom:1px solid var(--line);font-size:13px}th{color:var(--muted);font-weight:650}td.money{text-align:right;font-weight:750;white-space:nowrap}th:last-child{text-align:right}.empty{text-align:center;color:var(--muted);padding:28px}.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.notice{padding:12px 14px;border-radius:10px;background:#202c39;color:#b9c9d8;font-size:12px;margin-top:13px}.hidden{display:none!important}.right{text-align:right}.file-label{display:inline-flex;align-items:center;gap:8px}
+footer{text-align:center;color:#718196;font-size:12px;padding:22px 0 0}
+@media(max-width:800px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){header{padding:14px 16px}.wrap{padding:18px 12px 35px}.grid{grid-template-columns:1fr}.form-grid,.settings-grid{grid-template-columns:1fr}.stat{padding:14px}.table-actions button{font-size:12px}.brand h1{font-size:17px}.topline h2{font-size:21px}}
+
+/* Simple, clean management UI refresh */
+:root{
+ --bg:#f4f7fb;--panel:#ffffff;--panel2:#f8fafc;--line:#e2e8f0;
+ --text:#172033;--muted:#64748b;--green:#16845d;--red:#c2414b;
+ --amber:#a16207;--blue:#2563eb;
+}
+body{background:#f4f7fb;color:var(--text);font-size:14px}
+header{background:#fff;border-bottom:1px solid #e2e8f0;box-shadow:0 2px 8px #0f172a08}
+.logo{background:#e2f6ed;color:#147653;box-shadow:none}
+.brand h1{font-size:18px;letter-spacing:.2px}
+.brand p{color:#64748b}
+.wrap{padding-top:22px}
+h2{font-size:24px;letter-spacing:-.5px}
+.muted,.small{color:#64748b}
+.stats{gap:14px}
+.stat,.panel,.table-card{background:#fff;border:1px solid #e2e8f0;box-shadow:0 2px 8px #0f172a05;border-radius:14px}
+.stat{padding:18px}
+.stat .label{font-size:12px;font-weight:650;color:#64748b}
+.stat .value{font-size:clamp(20px,2.2vw,27px);color:#172033;margin:10px 0 4px}
+.stat.green .value{color:#16845d}
+.stat .hint{color:#64748b}
+button{border-radius:9px;box-shadow:none;transition:background .12s ease}
+button:hover{transform:none;filter:none}
+.primary{background:#16845d;color:white}
+.primary:hover{background:#116b4b}
+.secondary{background:#f1f5f9;color:#334155;border:1px solid #dbe3ed}
+.secondary:hover,.ghost:hover,.tab:hover{background:#e9eff6}
+.danger{background:#fff1f2;color:#be123c;border:1px solid #fecdd3}
+.ghost{background:#fff;border:1px solid #dbe3ed;color:#334155}
+.tabs{gap:6px;padding:4px 0 16px}
+.tab{background:transparent;border:1px solid transparent;color:#64748b;padding:10px 13px}
+.tab.active{background:#e5f5ee;border-color:#c1ead8;color:#126847}
+.section-head{margin:10px 0 14px}
+.section-head h3{font-size:17px;color:#172033}
+.grid{gap:14px}
+.table-card{padding:17px}
+.table-card.playing{border-color:#80c9aa;background:linear-gradient(180deg,#fff,#f7fffb)}
+.table-card.playing:before{background:#16845d}
+.table-top h3{font-size:16px}
+.pill{background:#f1f5f9;color:#64748b}
+.pill.on{background:#dcfce7;color:#166534}
+.timer{font-size:24px;color:#172033;margin:18px 0 4px}
+.price{color:#16845d;font-size:19px}
+input,select{background:#fff;border:1px solid #cbd5e1;color:#172033;border-radius:9px;padding:11px}
+input[type=month],input[type=date]{color-scheme:light}
+.field label{font-size:12px;font-weight:650;color:#64748b}
+.panel{padding:20px}
+th,td{border-bottom:1px solid #edf1f6}
+th{color:#64748b;background:#f8fafc}
+td{color:#334155}
+td.money{color:#126847}
+.empty{color:#64748b}
+.notice{background:#f1f7f5;border:1px solid #d9eee5;color:#45665a;border-radius:10px}
+footer{color:#94a3b8}
+@media(max-width:520px){
+ header{padding:13px 14px}
+ .wrap{padding:16px 12px 30px}
+ .stats{gap:9px}
+ .stat{padding:13px}
+ .stat .value{font-size:19px}
+ .tabs{margin-right:-12px;padding-right:12px}
+ .tab{padding:9px 11px;font-size:12px}
+ .panel{padding:14px}
+ .table-card{padding:15px}
+}
+
+
+/* Theme toggle: dark mode */
+body.dark-theme{--bg:#0c1118;--panel:#151d28;--panel2:#1b2634;--line:#2a3748;--text:#edf3fa;--muted:#9aabba;--green:#35d39a;--red:#ff6f76;--amber:#f5c56b;--blue:#7db6ff;background:#0c1118;color:#edf3fa}
+body.dark-theme header{background:#101720;border-color:#2a3748;box-shadow:none}
+body.dark-theme .logo{background:#183e32;color:#8af0c9}
+body.dark-theme .brand h1,body.dark-theme h2,body.dark-theme .section-head h3{color:#edf3fa}
+body.dark-theme .brand p,body.dark-theme .muted,body.dark-theme .small{color:#9aabba}
+body.dark-theme .stat,body.dark-theme .panel,body.dark-theme .table-card{background:#151d28;border-color:#2a3748;box-shadow:none}
+body.dark-theme .stat .label,body.dark-theme .stat .hint{color:#9aabba}
+body.dark-theme .stat .value{color:#edf3fa}
+body.dark-theme .stat.green .value,body.dark-theme .price,body.dark-theme td.money{color:#35d39a}
+body.dark-theme .table-card.playing{background:#13251f;border-color:#267a60}
+body.dark-theme .timer{color:#edf3fa}
+body.dark-theme .pill{background:#293443;color:#b9c7d6}
+body.dark-theme .pill.on{background:#183e32;color:#8af0c9}
+body.dark-theme .primary{background:#35d39a;color:#06241b}
+body.dark-theme .primary:hover{background:#62e5b4}
+body.dark-theme .secondary{background:#253447;color:#edf3fa;border-color:#35465a}
+body.dark-theme .secondary:hover,body.dark-theme .ghost:hover,body.dark-theme .tab:hover{background:#263447}
+body.dark-theme .ghost{background:#151d28;border-color:#35465a;color:#edf3fa}
+body.dark-theme .danger{background:#4b242b;color:#ffc5c8;border-color:#77373f}
+body.dark-theme .tab{color:#9aabba}
+body.dark-theme .tab.active{background:#213c37;border-color:#286e5b;color:#8af0c9}
+body.dark-theme input,body.dark-theme select{background:#0e151e;border-color:#334155;color:#edf3fa}
+body.dark-theme input[type=month],body.dark-theme input[type=date]{color-scheme:dark}
+body.dark-theme th,body.dark-theme td{border-color:#2a3748;color:#d7e0ea}
+body.dark-theme th{background:#111a25;color:#9aabba}
+body.dark-theme .notice{background:#202c39;border-color:#2b3e4f;color:#b9c9d8}
+body.dark-theme footer{color:#718196}
+body.dark-theme .empty{color:#9aabba}
+
+
+.creator{font-size:11px;color:#16845d;margin:3px 0 0;font-weight:650}
+body.dark-theme .creator{color:#35d39a}
+
+
+.modal-backdrop{position:fixed;inset:0;z-index:1000;background:rgba(15,23,42,.58);display:flex;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(4px)}
+.modal-backdrop.hidden{display:none!important}
+.invoice-modal{width:min(100%,430px);background:#fff;border:1px solid #e2e8f0;border-radius:20px;box-shadow:0 24px 80px #0f172a40;overflow:hidden;color:#172033;animation:invoiceIn .18s ease-out}
+@keyframes invoiceIn{from{opacity:0;transform:translateY(8px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+.invoice-modal-head{display:flex;align-items:center;gap:12px;padding:22px 20px 18px;border-bottom:1px solid #edf1f6}
+.invoice-check{width:42px;height:42px;flex:0 0 42px;border-radius:50%;display:grid;place-items:center;background:#dcfce7;color:#15803d;font-size:24px;font-weight:800}
+.invoice-modal-head h2{font-size:18px;margin:0 0 4px;letter-spacing:-.3px;color:#172033}
+.invoice-modal-head p{font-size:12px;color:#64748b;margin:0}
+.modal-x{margin-left:auto;align-self:flex-start;padding:2px 8px;background:transparent;color:#64748b;font-size:25px;line-height:1}
+.invoice-number{margin:18px 20px 10px;color:#16845d;font-size:11px;font-weight:800;letter-spacing:1px}
+.invoice-lines{padding:0 20px}
+.invoice-line{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 0;border-bottom:1px solid #edf1f6;font-size:13px}
+.invoice-line span{color:#64748b}.invoice-line strong{font-weight:700;text-align:right;color:#172033}
+.invoice-total{margin:18px 20px 0;padding:16px;border-radius:12px;background:#eaf7f0;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.invoice-total span{font-size:11px;font-weight:800;letter-spacing:.4px;color:#276749}
+.invoice-total strong{font-size:23px;letter-spacing:-.5px;color:#126847;text-align:right}
+.invoice-modal-actions{padding:18px 20px 20px;display:flex;justify-content:flex-end}
+.invoice-modal-actions button{min-width:110px}
+body.dark-theme .invoice-modal{background:#151d28;border-color:#2a3748;color:#edf3fa}
+body.dark-theme .invoice-modal-head{border-color:#2a3748}
+body.dark-theme .invoice-modal-head h2,body.dark-theme .invoice-line strong{color:#edf3fa}
+body.dark-theme .invoice-modal-head p,body.dark-theme .invoice-line span{color:#9aabba}
+body.dark-theme .invoice-line{border-color:#2a3748}
+body.dark-theme .invoice-number{color:#35d39a}
+body.dark-theme .invoice-total{background:#183e32}
+body.dark-theme .invoice-total span{color:#a7f3d0}
+body.dark-theme .invoice-total strong{color:#8af0c9}
+body.dark-theme .modal-x{color:#9aabba}
+
+
+.service-icon{width:42px;height:42px;flex:0 0 42px;border-radius:12px;display:grid;place-items:center;background:#e5f5ee;color:#16845d;font-size:25px;font-weight:700}
+.service-form-body{padding:20px;display:grid;gap:18px}
+.service-form-body .field{gap:8px}
+.service-form-body .field label{font-size:13px;color:#334155}
+.service-form-body select,.service-form-body input{padding:13px 12px;font-size:15px}
+.service-amount-preview{font-size:14px;font-weight:800;color:#16845d;text-align:right;margin-top:1px}
+.service-modal .invoice-modal-actions{padding-top:0;gap:9px}
+.service-modal .invoice-modal-actions button{min-width:88px}
+body.dark-theme .service-icon{background:#183e32;color:#8af0c9}
+body.dark-theme .service-form-body .field label{color:#d7e0ea}
+body.dark-theme .service-amount-preview{color:#35d39a}
+
+
+/* Premium drawer navigation, loading screen and developer support */
+body{--menu-blue:#2563eb}
+#menuToggle{display:inline-flex;align-items:center;justify-content:center;width:44px;height:42px;padding:0;font-size:22px;background:#edf4ff!important;color:#245fe8!important;border:1px solid #d8e6ff!important}
+#topActions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tabs{display:none!important}
+.drawer-shade{position:fixed;inset:0;background:rgba(13,27,50,.38);backdrop-filter:blur(3px);z-index:1000;opacity:0;pointer-events:none;transition:opacity .22s ease}
+.drawer-shade.open{opacity:1;pointer-events:auto}
+.app-drawer{position:fixed;z-index:1001;top:0;bottom:0;left:0;width:min(330px,88vw);background:#fff;border-right:1px solid #dce6f5;box-shadow:18px 0 55px rgba(21,43,80,.16);transform:translateX(-105%);transition:transform .24s ease;display:flex;flex-direction:column;padding:18px;overflow:auto}
+.app-drawer.open{transform:translateX(0)}
+.drawer-brand{display:flex;align-items:center;gap:12px;padding:8px 5px 20px;border-bottom:1px solid #e8eef7;margin-bottom:14px}
+.drawer-brand .drawer-logo{width:48px;height:48px;border-radius:15px;display:grid;place-items:center;background:linear-gradient(145deg,#dceaff,#eff5ff);font-size:25px}
+.drawer-brand strong{display:block;color:#172b4d;font-size:16px;letter-spacing:-.3px}.drawer-brand small{color:#7b8aa3;font-size:11px}
+.drawer-label{padding:12px 10px 7px;color:#93a0b4;font-size:10px;font-weight:850;letter-spacing:.1em;text-transform:uppercase}
+.drawer-link{display:flex;align-items:center;gap:12px;width:100%;min-height:47px;padding:11px 12px;margin:3px 0;text-align:left;background:transparent!important;border:1px solid transparent!important;color:#53647f!important;border-radius:12px!important;font-size:13px!important;font-weight:750!important}
+.drawer-link .drawer-icon{width:26px;height:26px;border-radius:8px;background:#f0f5fc;display:grid;place-items:center;font-size:14px}
+.drawer-link.active{background:#edf4ff!important;border-color:#dce8ff!important;color:#245fe8!important}.drawer-link.active .drawer-icon{background:#dce9ff}
+.drawer-bottom{margin-top:auto;padding-top:16px;border-top:1px solid #e8eef7}.drawer-note{padding:12px;border-radius:12px;background:#f5f8fd;color:#7a8aa3;font-size:11px;line-height:1.6}
+#donateSection .donate-hero{background:linear-gradient(135deg,#eff6ff,#fff 65%);border:1px solid #dce8fb;border-radius:18px;padding:23px;display:flex;gap:18px;align-items:center;margin-bottom:16px}
+.donate-heart{flex:0 0 54px;width:54px;height:54px;border-radius:17px;display:grid;place-items:center;background:#dceaff;color:#245fe8;font-size:26px}
+.donate-hero h3{margin:0 0 6px;color:#1d3153;font-size:20px}.donate-hero p{margin:0;color:#61738e;line-height:1.65;font-size:13px}
+.donate-layout{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(240px,.9fr);gap:16px}
+.transfer-placeholder{min-height:250px;border:1.5px dashed #bfd1ee;background:#f8fbff;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;color:#71839e;gap:10px}
+.transfer-placeholder .placeholder-icon{font-size:35px;color:#7ba2ec}.transfer-placeholder strong{color:#344b70;font-size:14px}.transfer-placeholder p{margin:0;max-width:280px;font-size:12px;line-height:1.65}
+.transfer-image{display:block;max-width:100%;width:100%;max-height:480px;object-fit:contain;border-radius:14px;border:1px solid #e2eaf5;background:#fff}
+.social-links{display:grid;gap:10px;margin-top:16px}.social-link{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 14px;border:1px solid #dce6f5;border-radius:12px;text-decoration:none;color:#344762;background:#fff;font-weight:750;font-size:13px}.social-link span{display:flex;align-items:center;gap:10px}.social-link b{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:#edf4ff;color:#245fe8;font-size:15px}.social-link em{font-style:normal;color:#8392a8;font-size:11px;font-weight:600}
+#loadingScreen{position:fixed;inset:0;z-index:2000;display:flex;align-items:center;justify-content:center;padding:24px;background:linear-gradient(145deg,#f8fbff,#eaf2ff);transition:opacity .3s ease,visibility .3s ease}
+#loadingScreen.dismissed{opacity:0;visibility:hidden;pointer-events:none}
+.loading-card{width:min(340px,100%);text-align:center;padding:30px 25px;background:rgba(255,255,255,.9);border:1px solid #e0e9f7;border-radius:24px;box-shadow:0 20px 65px rgba(37,76,140,.12)}
+.loading-mark{width:76px;height:76px;margin:0 auto 17px;display:grid;place-items:center;border-radius:24px;background:linear-gradient(145deg,#e3eeff,#f5f8ff);font-size:37px;box-shadow:inset 0 0 0 1px #d9e6fc}
+.loading-card h1{font-size:21px;color:#1d3153;margin:0 0 5px;letter-spacing:-.5px}.loading-card p{font-size:12px;color:#7a8aa3;margin:0 0 22px}.loading-track{height:5px;border-radius:99px;background:#e6edf8;overflow:hidden}.loading-track span{display:block;height:100%;width:40%;border-radius:99px;background:linear-gradient(90deg,#8db5ff,#2563eb);animation:loadbar 1.2s ease-in-out infinite alternate}
+@keyframes loadbar{from{transform:translateX(-15%);width:28%}to{transform:translateX(235%);width:55%}}
+.welcome-shade{position:fixed;inset:0;z-index:1900;background:rgba(13,27,50,.42);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:20px}
+.welcome-shade.hidden{display:none!important}.welcome-card{width:min(430px,100%);background:#fff;border:1px solid #e0e9f7;border-radius:22px;padding:25px;box-shadow:0 24px 75px rgba(13,35,76,.22)}.welcome-card .welcome-icon{width:48px;height:48px;border-radius:15px;display:grid;place-items:center;background:#eaf2ff;color:#245fe8;font-size:24px;margin-bottom:14px}.welcome-card h2{font-size:20px;color:#1c3153;margin:0 0 10px}.welcome-card p{font-size:13px;line-height:1.75;color:#60718b;margin:0 0 18px}.welcome-card strong{color:#245fe8}
+body.drawer-open{overflow:hidden}
+@media(max-width:650px){.donate-layout{grid-template-columns:1fr}#donateSection .donate-hero{align-items:flex-start;padding:17px;gap:13px}.donate-hero h3{font-size:18px}.donate-heart{width:45px;height:45px;flex-basis:45px;border-radius:14px;font-size:22px}.app-drawer{padding:14px}.welcome-card{padding:21px}}
+body.dark-theme .app-drawer{background:#131d2d;border-color:#28364b}body.dark-theme .drawer-brand{border-color:#28364b}body.dark-theme .drawer-brand strong,body.dark-theme .donate-hero h3,body.dark-theme .transfer-placeholder strong,body.dark-theme .loading-card h1,body.dark-theme .welcome-card h2{color:#e8eef8}body.dark-theme .drawer-link{color:#c2cde0!important}body.dark-theme .drawer-link.active{background:#1b2e50!important;border-color:#2b4777!important;color:#b8ceff!important}body.dark-theme .drawer-bottom{border-color:#28364b}body.dark-theme .drawer-note,body.dark-theme .transfer-placeholder{background:#172438;color:#a5b5cd;border-color:#334967}body.dark-theme #donateSection .donate-hero{background:#14243a;border-color:#283e60}body.dark-theme .social-link{background:#131d2d;border-color:#33435b;color:#e0e8f5}body.dark-theme .welcome-card{background:#131d2d;border-color:#28364b}body.dark-theme .welcome-card p,body.dark-theme .donate-hero p{color:#a9b8ce}body.dark-theme #loadingScreen{background:linear-gradient(145deg,#0b1220,#15243a)}body.dark-theme .loading-card{background:#131d2d;border-color:#28364b}body.dark-theme .loading-card p{color:#a9b8ce}
+
+</style>
+
+<style id="modern-ui-refresh">
+:root{--bg:#f4f7fb;--panel:#ffffff;--ink:#172033;--muted:#68758b;--line:#e3e9f2;--accent:#276ef1;--accent2:#1758d4;--good:#16845b;--danger:#d9485f;--shadow:0 12px 32px rgba(31,48,78,.07)}
+body{background:radial-gradient(ellipse at top left,rgba(39,110,241,.08),transparent 34%),var(--bg)!important;color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:-.01em}
+header{position:sticky;top:0;z-index:20;backdrop-filter:blur(16px);background:rgba(255,255,255,.88)!important;border-bottom:1px solid var(--line)!important;box-shadow:0 3px 18px rgba(20,36,64,.04);padding:16px clamp(14px,3vw,32px)!important}
+header h1,.brand h1{font-size:clamp(19px,2vw,25px)!important;font-weight:850!important;letter-spacing:-.04em!important}
+main,.container,.app{max-width:1180px!important;margin:0 auto!important;padding:24px clamp(12px,2.5vw,28px)!important}
+section,.panel,.card,.settings-card,.stat-card,.modal-content{border:1px solid var(--line)!important;border-radius:20px!important;box-shadow:var(--shadow)!important}
+.card,.panel,.stat-card{background:var(--panel)!important}
+button,.btn{border-radius:12px!important;font-weight:700!important;transition:transform .15s ease,box-shadow .15s ease,background .15s ease!important}
+button:hover,.btn:hover{transform:translateY(-1px);box-shadow:0 7px 16px rgba(39,110,241,.12)}
+button:active,.btn:active{transform:translateY(0)}
+input,select,textarea{border:1px solid #d8e0ed!important;border-radius:11px!important;background:#fbfcff!important;min-height:42px!important;padding:10px 12px!important;color:var(--ink)!important;outline:none!important}
+input:focus,select:focus,textarea:focus{border-color:var(--accent)!important;box-shadow:0 0 0 3px rgba(39,110,241,.12)!important}
+table{border-collapse:separate!important;border-spacing:0!important;width:100%}
+th{font-size:12px!important;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)!important;background:#f7f9fc!important}
+th,td{padding:13px 14px!important;border-bottom:1px solid var(--line)!important}
+tr:last-child td{border-bottom:0!important}
+.modal,.dialog{backdrop-filter:blur(5px)}
+.modal-content,.modal-card,.dialog-content{border-radius:22px!important;box-shadow:0 24px 80px rgba(10,25,50,.2)!important}
+.badge,.pill,.status{border-radius:999px!important;font-weight:750!important}
+nav button,.tab{padding:10px 14px!important}
+hr{border:0;border-top:1px solid var(--line)!important}
+.muted,.hint,.subtitle{color:var(--muted)!important}
+@media(max-width:700px){
+ header{padding:12px!important}
+ main,.container,.app{padding:14px 12px!important}
+ section,.panel,.card,.settings-card,.stat-card{border-radius:16px!important}
+ th,td{padding:10px 9px!important;font-size:13px}
+ button,.btn{min-height:40px}
+}
+body.dark,body.dark-theme,[data-theme="dark"]{--bg:#0c1220;--panel:#141d2d;--ink:#e8edf7;--muted:#9aa8bf;--line:#27344a;--shadow:0 12px 32px rgba(0,0,0,.18);background:radial-gradient(ellipse at top left,rgba(39,110,241,.12),transparent 35%),var(--bg)!important;color:var(--ink)!important}
+body.dark header,body.dark-theme header,[data-theme="dark"] header{background:rgba(16,24,39,.9)!important;border-color:var(--line)!important}
+body.dark .card,body.dark .panel,body.dark .stat-card,body.dark-theme .card,body.dark-theme .panel,[data-theme="dark"] .card,[data-theme="dark"] .panel{background:var(--panel)!important;border-color:var(--line)!important}
+body.dark input,body.dark select,body.dark textarea,body.dark-theme input,body.dark-theme select,body.dark-theme textarea,[data-theme="dark"] input,[data-theme="dark"] select,[data-theme="dark"] textarea{background:#101827!important;color:var(--ink)!important;border-color:var(--line)!important}
+body.dark th,body.dark-theme th,[data-theme="dark"] th{background:#192337!important;color:var(--muted)!important}
+</style>
+
+
+<style id="premium-design-system">
+:root{--premium-bg:#f3f6fb;--premium-surface:#fff;--premium-border:#e1e7f0;--premium-ink:#172238;--premium-muted:#66758c;--premium-blue:#245fe8;--premium-blue-hover:#174bc4;--premium-green:#12805c;--premium-shadow:0 8px 28px rgba(24,42,75,.055)}
+html{scroll-behavior:smooth}body{background:var(--premium-bg)!important;color:var(--premium-ink);font-feature-settings:"cv11","ss01";-webkit-font-smoothing:antialiased}
+header{gap:20px;padding:14px clamp(16px,3vw,38px)!important;background:rgba(255,255,255,.94)!important;border-color:var(--premium-border)!important}
+.brand{gap:13px}.logo{width:44px;height:44px;border-radius:13px;background:#eaf0ff!important;color:var(--premium-blue);font-size:0;box-shadow:none!important}.logo:after{content:"B";font-size:23px;font-weight:850;letter-spacing:-1px}
+.brand h1{font-size:20px!important;letter-spacing:-.045em!important;color:var(--premium-ink)}.brand p{font-size:12px}.creator{font-size:11px!important;letter-spacing:0}
+.wrap{max-width:1320px!important;padding:28px clamp(14px,2.8vw,34px) 46px!important}.topline{align-items:center;margin-bottom:22px}.topline h2{font-size:27px;letter-spacing:-.045em}.topline .muted{font-size:14px}
+.stats{gap:14px;margin-bottom:24px}.stat,.panel,.table-card{border:1px solid var(--premium-border)!important;border-radius:16px!important;box-shadow:var(--premium-shadow)!important;background:var(--premium-surface)!important}.stat{padding:20px}.stat .label{font-size:12px;font-weight:700;letter-spacing:.015em}.stat .value{font-size:clamp(21px,2.3vw,29px);letter-spacing:-.045em;color:var(--premium-ink);margin:12px 0 5px}.stat.green .value{color:var(--premium-green)}.stat .hint{font-size:12px}
+.tabs{gap:7px;padding:5px 0 17px;margin-bottom:10px;border-bottom:1px solid var(--premium-border)}.tab{border:1px solid transparent!important;border-radius:10px!important;padding:10px 14px!important;font-weight:700!important;color:#65738a!important;background:transparent!important}.tab.active{background:#eaf0ff!important;border-color:#d8e4ff!important;color:var(--premium-blue)!important}.tab:focus-visible,button:focus-visible{outline:3px solid #8eb0ff!important;outline-offset:2px}
+.section-head{margin:12px 0 16px}.section-head h3{font-size:18px;letter-spacing:-.025em}.grid{gap:15px}.table-card{padding:18px;transition:border-color .16s,box-shadow .16s}.table-card:hover{border-color:#c7d5ed!important;box-shadow:0 10px 28px rgba(24,42,75,.09)!important}.table-card.playing{background:linear-gradient(180deg,#fff,#f7fbff)!important;border-color:#9ab8ff!important}.table-card.playing:before{background:var(--premium-blue)!important}.table-top h3{font-size:16px;font-weight:800}.pill{padding:5px 9px;font-size:10px;letter-spacing:.045em}.pill.on{background:#e5efff!important;color:#1f55c8!important}.timer{font-size:29px;font-weight:800;letter-spacing:-.045em;font-variant-numeric:tabular-nums;margin:20px 0 5px}.price{font-size:20px;color:var(--premium-green)!important;letter-spacing:-.025em}.table-actions{gap:9px}.table-actions button{min-height:42px;padding:10px 9px;font-size:12px}
+button{font-weight:700!important;letter-spacing:-.01em}button.primary{background:var(--premium-blue)!important;color:#fff!important;border:1px solid var(--premium-blue)!important}button.primary:hover{background:var(--premium-blue-hover)!important;box-shadow:0 5px 14px #245fe826!important}button.secondary{background:#f7f9fc!important;color:#34435a!important;border:1px solid #dce4ef!important}button.secondary:hover,button.ghost:hover{background:#edf2f9!important}button.ghost{background:#fff!important;color:#42516a!important;border:1px solid #dce4ef!important}button.danger{background:#fff1f2!important;color:#b4233b!important;border:1px solid #ffd3da!important}
+.panel{padding:21px!important;margin-bottom:17px!important}.form-grid{gap:15px}.field{gap:7px}.field label{font-size:12px;font-weight:700;color:#596a83}input,select{background:#fbfcfe!important;border:1px solid #d5deeb!important;border-radius:10px!important;min-height:43px;padding:11px 12px!important;color:var(--premium-ink)!important}input:focus,select:focus{border-color:var(--premium-blue)!important;box-shadow:0 0 0 3px rgba(36,95,232,.12)!important}input[type=month],input[type=date]{color-scheme:light}
+.table-wrap{border:1px solid var(--premium-border);border-radius:12px}table{min-width:680px}th{background:#f6f8fc!important;color:#687790!important;font-size:10px!important;letter-spacing:.075em!important}th,td{padding:13px 14px!important;border-bottom:1px solid #e9eef5!important}td{font-size:13px;color:#34435a}tbody tr:hover td{background:#f9fbff}td.money{color:var(--premium-green)!important;font-variant-numeric:tabular-nums}.empty{padding:34px!important}.notice{background:#f2f6ff!important;border:1px solid #dce7ff!important;color:#526684!important;padding:13px 15px!important;line-height:1.6}
+.invoice-modal{border-radius:18px!important;box-shadow:0 28px 90px rgba(9,20,42,.25)!important}.service-modal .invoice-modal-head,.invoice-modal-head{padding:21px}.invoice-total{border:1px solid #d8efe3}.actions{gap:9px}.actions button,.actions .file-label{min-height:42px}footer{padding-top:25px}
+body.dark-theme{--premium-bg:#0b1220;--premium-surface:#131d2d;--premium-border:#28364b;--premium-ink:#e8eef8;--premium-muted:#9aa9bf;background:var(--premium-bg)!important;color:var(--premium-ink)!important}
+body.dark-theme header{background:rgba(14,22,36,.94)!important;border-color:var(--premium-border)!important}body.dark-theme .brand h1,body.dark-theme .topline h2,body.dark-theme .section-head h3{color:var(--premium-ink)!important}body.dark-theme .logo{background:#1b2c4d!important;color:#a9c4ff}body.dark-theme .stat,body.dark-theme .panel,body.dark-theme .table-card{background:var(--premium-surface)!important;border-color:var(--premium-border)!important;box-shadow:none!important}body.dark-theme .stat .value,body.dark-theme .timer{color:var(--premium-ink)!important}body.dark-theme .stat.green .value,body.dark-theme .price,body.dark-theme td.money{color:#55d6a4!important}body.dark-theme .table-card.playing{background:#14243a!important;border-color:#426cb7!important}body.dark-theme .table-card.playing:before{background:#6d9cff!important}body.dark-theme .pill.on{background:#20385d!important;color:#b4ceff!important}body.dark-theme .tab{color:#a0aec2!important}body.dark-theme .tab.active{background:#1b2e50!important;border-color:#2b4777!important;color:#b8ceff!important}body.dark-theme button.primary{background:#3d73ed!important;border-color:#3d73ed!important;color:#fff!important}body.dark-theme button.secondary,body.dark-theme button.ghost{background:#1a273b!important;color:#e0e8f5!important;border-color:#33435b!important}body.dark-theme input,body.dark-theme select{background:#0d1625!important;border-color:#33435b!important;color:#e8eef8!important}body.dark-theme input[type=month],body.dark-theme input[type=date]{color-scheme:dark}body.dark-theme .table-wrap{border-color:var(--premium-border)}body.dark-theme th{background:#182438!important;color:#9eacc1!important}body.dark-theme th,body.dark-theme td{border-color:#28364b!important;color:#d4deed}body.dark-theme tbody tr:hover td{background:#182438}body.dark-theme .notice{background:#172741!important;border-color:#2a4165!important;color:#b9c9e3!important}body.dark-theme .field label{color:#a8b6cb}body.dark-theme .service-form-body .field label{color:#d4deed}body.dark-theme .invoice-modal{background:#131d2d!important;border-color:#28364b!important}body.dark-theme .invoice-modal-head{border-color:#28364b!important}body.dark-theme .invoice-modal-head h2,body.dark-theme .invoice-line strong{color:#e8eef8!important}body.dark-theme .invoice-total{background:#17352d!important;border-color:#285342!important}body.dark-theme .invoice-total strong{color:#8ce8bf!important}
+@media(max-width:800px){.wrap{padding-top:20px!important}.stats{gap:10px}.stat{padding:16px}.grid{gap:11px}.table-card{padding:15px!important}.timer{font-size:26px}}
+@media(max-width:520px){header{align-items:flex-start!important}.brand{gap:10px}.logo{width:38px;height:38px;flex-basis:38px}.brand h1{font-size:17px!important}.wrap{padding:17px 12px 30px!important}.topline h2{font-size:23px}.stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.stat{padding:13px!important}.stat .label{font-size:11px}.stat .value{font-size:18px!important;overflow-wrap:anywhere}.stat .hint{font-size:11px}.grid{grid-template-columns:1fr}.table-actions button{font-size:12px!important}.panel{padding:14px!important}.tabs{margin-right:-12px;padding-right:12px}.tab{font-size:12px!important;padding:9px 10px!important}.table-wrap{border-radius:10px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+
+<style id="bida-manager-white-blue-polish">
+
+/* Bida Manager — polished white & blue responsive design */
+:root{
+  --premium-bg:#f3f6fc;--premium-surface:#fff;--premium-border:#e1e8f3;
+  --premium-ink:#17243b;--premium-muted:#687890;--premium-blue:#245fe8;
+  --premium-blue-hover:#194fc9;--premium-green:#12805c;
+  --premium-shadow:0 8px 28px rgba(29,53,92,.055);
+}
+html{scroll-behavior:smooth;background:var(--premium-bg)}
+body{background:radial-gradient(ellipse at 8% 0%,rgba(36,95,232,.075),transparent 32%),linear-gradient(180deg,#f8faff 0%,var(--premium-bg) 420px)!important;color:var(--premium-ink);-webkit-font-smoothing:antialiased}
+header{padding:13px clamp(14px,3vw,38px)!important;min-height:76px;background:rgba(255,255,255,.92)!important;border-bottom:1px solid var(--premium-border)!important;box-shadow:0 5px 24px rgba(24,42,75,.045)!important}
+.brand{gap:12px}.logo{width:46px;height:46px;flex:0 0 46px;border:1px solid #dce7ff;background:linear-gradient(145deg,#eef3ff,#dce7ff)!important;color:var(--premium-blue)!important;border-radius:15px!important;box-shadow:0 5px 14px rgba(36,95,232,.09)!important}.logo:after{content:"B";font-size:24px;font-weight:900;letter-spacing:-1px}.brand h1{font-size:clamp(18px,2vw,22px)!important;color:var(--premium-ink)!important;letter-spacing:-.045em!important}.brand p{line-height:1.35}.creator{color:#245fe8!important}
+header>div:last-child{gap:8px!important}header button{min-height:40px;white-space:nowrap}
+.wrap{max-width:1320px!important;padding:30px clamp(13px,2.8vw,36px) 48px!important}.topline{align-items:center;margin-bottom:23px}.topline h2{font-size:clamp(24px,2.5vw,30px);font-weight:850;letter-spacing:-.05em;color:var(--premium-ink)}.topline .muted{font-size:14px}.topline .small{background:#fff;border:1px solid var(--premium-border);border-radius:999px;padding:8px 12px;color:#63738d!important;font-weight:650}
+.stats{gap:14px;margin-bottom:24px}.stat,.panel,.table-card{background:var(--premium-surface)!important;border:1px solid var(--premium-border)!important;border-radius:18px!important;box-shadow:var(--premium-shadow)!important}.stat{position:relative;overflow:hidden;padding:19px 20px!important;transition:transform .16s ease,box-shadow .16s ease}.stat:before{content:"";position:absolute;left:0;top:0;right:0;height:3px;background:#c9d8f7}.stat.green:before{background:linear-gradient(90deg,#12805c,#4bc79a)}.stat:nth-child(2):before{background:#75a4ff}.stat:nth-child(3):before{background:#8d9dfb}.stat:nth-child(4):before{background:#9aacc7}.stat:hover{transform:translateY(-2px);box-shadow:0 13px 30px rgba(29,53,92,.085)!important}.stat .label{font-size:12px!important;letter-spacing:.015em;font-weight:750!important;color:#697992!important}.stat .value{font-size:clamp(21px,2.15vw,29px)!important;font-weight:850!important;letter-spacing:-.05em!important;color:#1a2943!important;margin:12px 0 5px!important;line-height:1.18}.stat.green .value{color:#12805c!important}.stat .hint{font-size:12px;color:#8290a5!important}
+.tabs{display:flex;gap:7px;overflow-x:auto;overscroll-behavior-x:contain;padding:6px;margin:0 0 22px!important;border:1px solid #e3eaf5;border-radius:15px;background:rgba(255,255,255,.75);scrollbar-width:thin}.tab{flex:0 0 auto;border:1px solid transparent!important;border-radius:10px!important;padding:10px 14px!important;font-weight:750!important;color:#64748b!important;background:transparent!important}.tab.active{background:#eaf1ff!important;border-color:#d7e4ff!important;color:#245fe8!important;box-shadow:0 2px 5px rgba(36,95,232,.06)}.tab:focus-visible,button:focus-visible{outline:3px solid #8eb0ff!important;outline-offset:2px}
+.section-head{margin:12px 0 16px;gap:10px}.section-head h3{font-size:18px!important;font-weight:850;letter-spacing:-.03em;color:#1c2b45!important}.section-head .field{min-width:min(190px,100%)!important}.grid{gap:15px}.table-card{position:relative;padding:19px!important;transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}.table-card:hover{transform:translateY(-2px);border-color:#c6d6f5!important;box-shadow:0 13px 28px rgba(29,53,92,.085)!important}.table-card.playing{background:linear-gradient(160deg,#fff 0%,#f5f9ff 100%)!important;border-color:#9cbcff!important}.table-card.playing:before{width:4px!important;background:linear-gradient(180deg,#245fe8,#74a1ff)!important}.table-top h3{font-size:17px!important;font-weight:850!important;color:#1b2a43}.pill{padding:5px 10px!important;font-size:10px!important;letter-spacing:.035em}.pill.on{background:#e5efff!important;color:#2057c7!important}.timer{font-size:clamp(25px,2.2vw,30px)!important;letter-spacing:-.05em!important;color:#1a2943!important;margin:20px 0 5px!important}.price{font-size:20px!important;font-weight:850!important;color:#12805c!important}.table-actions{gap:8px!important}.table-actions button{flex:1;min-width:0;min-height:43px;padding:10px 8px!important;font-size:12px!important}
+button{border-radius:11px!important;font-weight:750!important;letter-spacing:-.015em;box-shadow:none;transition:transform .14s ease,background .14s ease,box-shadow .14s ease!important}button:hover{transform:translateY(-1px)}button:active{transform:translateY(0)}button.primary{background:linear-gradient(135deg,#2f70f2,#245fe8)!important;color:#fff!important;border:1px solid #245fe8!important;box-shadow:0 4px 10px rgba(36,95,232,.12)}button.primary:hover{background:linear-gradient(135deg,#245fe8,#194fc9)!important;box-shadow:0 7px 16px rgba(36,95,232,.2)!important}button.secondary{background:#f7f9fd!important;color:#35455f!important;border:1px solid #dce5f2!important}button.secondary:hover,button.ghost:hover{background:#edf3ff!important}button.ghost{background:#fff!important;color:#42516a!important;border:1px solid #dce5f2!important}button.danger{background:#fff2f3!important;color:#b4233b!important;border:1px solid #ffd5dc!important}
+.panel{padding:21px!important;margin-bottom:17px!important}.form-grid{gap:15px}.field{gap:7px}.field label{font-size:12px!important;font-weight:750!important;color:#596b85!important}input,select{background:#fbfcff!important;border:1px solid #d7e0ed!important;border-radius:11px!important;min-height:44px;padding:11px 12px!important;color:#17243b!important;box-shadow:inset 0 1px 1px rgba(18,36,68,.015)}input:focus,select:focus{border-color:#245fe8!important;box-shadow:0 0 0 3px rgba(36,95,232,.12)!important}input[type=month],input[type=date]{color-scheme:light}.actions{gap:9px!important}.actions button,.actions .file-label{min-height:43px;align-items:center}
+.table-wrap{border:1px solid var(--premium-border)!important;border-radius:13px!important;overflow:auto;background:#fff}table{min-width:680px!important;border-collapse:separate!important;border-spacing:0!important}th{background:#f5f8fe!important;color:#6a7991!important;font-size:10px!important;font-weight:800!important;letter-spacing:.07em!important;text-transform:uppercase}th,td{padding:13px 14px!important;border-bottom:1px solid #e9eef6!important}td{font-size:13px;color:#35445c}tbody tr:last-child td{border-bottom:0!important}tbody tr:hover td{background:#f8faff}td.money{color:#12805c!important;font-variant-numeric:tabular-nums}.empty{padding:34px!important;color:#75849b!important}.notice{background:#f1f6ff!important;border:1px solid #dce7ff!important;color:#526784!important;padding:13px 15px!important;line-height:1.65;border-radius:12px!important}.table-card .small{color:#75849b!important}footer{color:#8492a7!important;padding-top:27px!important}
+.invoice-modal{border-radius:20px!important;box-shadow:0 28px 90px rgba(9,20,42,.25)!important}.invoice-total{border:1px solid #d8e6ff!important;background:#edf3ff!important}.invoice-total span{color:#2453b6!important}.invoice-total strong{color:#194fc9!important}.service-icon{background:#eaf1ff!important;color:#245fe8!important}
+@media(max-width:800px){.wrap{padding-top:20px!important}.stats{gap:10px}.stat{padding:16px!important}.grid{gap:11px}.table-card{padding:16px!important}.timer{font-size:26px!important}.tabs{margin-bottom:18px!important}}
+@media(max-width:520px){header{align-items:center!important;gap:10px!important;padding:11px 12px!important}header>div:last-child{gap:6px!important;justify-content:flex-end}header>div:last-child button{font-size:11px!important;min-height:37px;padding:8px 9px!important}.brand{gap:9px}.logo{width:38px;height:38px;flex-basis:38px;border-radius:12px!important}.logo:after{font-size:20px}.brand h1{font-size:16px!important}.brand p{font-size:10px!important}.creator{font-size:10px!important}.wrap{padding:17px 12px 30px!important}.topline{align-items:flex-start;gap:8px}.topline h2{font-size:24px!important}.topline .muted{font-size:12px}.topline .small{font-size:10px;padding:6px 8px;max-width:45%;text-align:right}.stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.stat{padding:13px!important;border-radius:14px!important}.stat .label{font-size:10px!important;line-height:1.35}.stat .value{font-size:clamp(16px,4.7vw,20px)!important;overflow-wrap:anywhere;margin:9px 0 4px!important}.stat .hint{font-size:10px!important;line-height:1.35}.tabs{gap:5px;padding:5px;border-radius:12px;margin-right:-2px!important}.tab{font-size:11px!important;padding:9px 10px!important}.section-head h3{font-size:16px!important}.section-head .field{min-width:145px!important;flex:1}.panel{padding:14px!important;border-radius:15px!important}.table-card{padding:15px!important}.table-actions{gap:6px!important}.table-actions button{font-size:11px!important;padding:9px 5px!important;min-height:41px}.form-grid,.settings-grid{grid-template-columns:1fr!important}.actions button,.actions .file-label{width:100%;justify-content:center}.table-wrap{border-radius:10px!important}th,td{padding:10px 9px!important;font-size:12px!important}.notice{font-size:11px!important}.invoice-modal{max-height:calc(100dvh - 24px);overflow:auto}.invoice-modal-head{padding:17px!important}.invoice-lines{padding:0 16px!important}.invoice-total{margin:15px 16px 0!important;padding:13px!important}.invoice-total strong{font-size:20px!important}.invoice-modal-actions{padding:15px 16px 17px!important}}
+@media(max-width:360px){header{align-items:flex-start!important;flex-direction:column}header>div:last-child{width:100%;justify-content:flex-start!important}.stats{gap:7px}.stat{padding:11px!important}.stat .value{font-size:16px!important}.table-actions{flex-wrap:wrap}.table-actions button{flex:1 1 40%}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
+/* Keep the optional dark theme compatible with the refreshed design. */
+body.dark-theme{--premium-bg:#0b1220;--premium-surface:#131d2d;--premium-border:#28364b;--premium-ink:#e8eef8;--premium-muted:#9aa9bf;background:radial-gradient(ellipse at 8% 0%,rgba(65,117,239,.12),transparent 34%),#0b1220!important;color:#e8eef8!important}
+body.dark-theme header{background:rgba(14,22,36,.94)!important;border-color:#28364b!important}body.dark-theme .topline h2,body.dark-theme .section-head h3,body.dark-theme .table-top h3,body.dark-theme .stat .value,body.dark-theme .timer{color:#e8eef8!important}body.dark-theme .topline .small{background:#131d2d;border-color:#28364b;color:#a9b7cd!important}body.dark-theme .stat,body.dark-theme .panel,body.dark-theme .table-card{background:#131d2d!important;border-color:#28364b!important;box-shadow:none!important}body.dark-theme .stat .label,body.dark-theme .stat .hint,body.dark-theme .muted,body.dark-theme .small{color:#9aa9bf!important}body.dark-theme .tabs{background:#111a29;border-color:#28364b}body.dark-theme .tab{color:#a0aec2!important}body.dark-theme .tab.active{background:#1b2e50!important;border-color:#2b4777!important;color:#b8ceff!important}body.dark-theme .table-card.playing{background:#14243a!important;border-color:#426cb7!important}body.dark-theme .pill{background:#293443!important;color:#b9c7d6!important}body.dark-theme .pill.on{background:#20385d!important;color:#b4ceff!important}body.dark-theme button.primary{background:#3d73ed!important;border-color:#3d73ed!important;color:#fff!important}body.dark-theme button.secondary,body.dark-theme button.ghost{background:#1a273b!important;color:#e0e8f5!important;border-color:#33435b!important}body.dark-theme input,body.dark-theme select{background:#0d1625!important;border-color:#33435b!important;color:#e8eef8!important}body.dark-theme .table-wrap{background:#131d2d;border-color:#28364b!important}body.dark-theme th{background:#182438!important;color:#9eacc1!important}body.dark-theme th,body.dark-theme td{border-color:#28364b!important;color:#d4deed!important}body.dark-theme tbody tr:hover td{background:#182438!important}body.dark-theme .notice{background:#172741!important;border-color:#2a4165!important;color:#b9c9e3!important}body.dark-theme .field label{color:#a8b6cb!important}body.dark-theme .invoice-modal{background:#131d2d!important;border-color:#28364b!important}body.dark-theme .invoice-modal-head{border-color:#28364b!important}body.dark-theme .invoice-modal-head h2,body.dark-theme .invoice-line strong{color:#e8eef8!important}body.dark-theme .invoice-total{background:#173052!important;border-color:#2a4777!important}body.dark-theme .invoice-total span,body.dark-theme .invoice-total strong{color:#b8ceff!important}body.dark-theme .service-icon{background:#1b2e50!important;color:#b8ceff!important}
+
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><div class="logo">🎱</div><div><h1>BIDA MANAGER</h1><p>Quản lý bàn · Hóa đơn · Doanh thu</p></div></div>
+  <div id="topActions"><button class="ghost" id="themeToggle" type="button" aria-label="Đổi giao diện">🌙 Nền tối</button><button id="menuToggle" type="button" aria-label="Mở menu" aria-expanded="false">☰</button></div>
+</header>
+<div class="drawer-shade" id="drawerShade"></div>
+<aside class="app-drawer" id="appDrawer" aria-label="Menu chính" aria-hidden="true">
+  <div class="drawer-brand"><div class="drawer-logo">🎱</div><div><strong>Bida Manager</strong><small>Quản lý quán bida</small></div><button class="ghost" id="drawerClose" style="margin-left:auto;padding:7px 11px" aria-label="Đóng menu">×</button></div>
+  <div class="drawer-label">Quản lý</div>
+  <button class="drawer-link active" data-go-tab="tables"><span class="drawer-icon">🎱</span>Quản lý bàn</button>
+  <button class="drawer-link" data-go-tab="history"><span class="drawer-icon">🧾</span>Lịch sử hóa đơn</button>
+  <button class="drawer-link" data-go-tab="reports"><span class="drawer-icon">📊</span>Báo cáo doanh thu</button>
+  <div class="drawer-label">Ứng dụng</div>
+  <button class="drawer-link" data-go-tab="settings"><span class="drawer-icon">⚙️</span>Cài đặt & dữ liệu</button>
+  <button class="drawer-link" data-go-tab="donate"><span class="drawer-icon">💙</span>Donate nhà phát triển</button>
+  <button class="drawer-link" id="drawerTheme"><span class="drawer-icon">🌙</span>Đổi giao diện sáng/tối</button>
+  <div class="drawer-bottom"><div class="drawer-note">Phát triển bởi <strong>Lê Quốc Anh</strong><br>Ứng dụng miễn phí. Cảm ơn bạn đã sử dụng và ủng hộ.</div></div>
+</aside>
+
+<section id="cloudPanel" style="max-width:1180px;margin:18px auto 0;padding:0 16px">
+ <div class="panel" style="border:1px solid var(--line);border-radius:16px;padding:18px;background:var(--panel)">
+  <h3 style="margin:0 0 8px">☁️ Đăng nhập & đồng bộ dữ liệu</h3>
+  <p class="muted" style="margin:0 0 12px;font-size:13px">Đăng nhập cùng một tài khoản trên các thiết bị để dùng chung dữ liệu. Cần cấu hình Supabase miễn phí trước khi sử dụng.</p>
+  <div id="cloudConfigNotice" class="notice">Chưa cấu hình Supabase. Điền Project URL và anon/publishable key trong phần cấu hình ở cuối file HTML sau khi tạo dự án.</div>
+  <div id="cloudAuthForm" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:12px">
+   <input id="cloudEmail" type="email" autocomplete="username" placeholder="Email" aria-label="Email" style="padding:11px;border-radius:9px;border:1px solid var(--line);min-width:0">
+   <input id="cloudPassword" type="password" autocomplete="current-password" placeholder="Mật khẩu (ít nhất 6 ký tự)" aria-label="Mật khẩu" style="padding:11px;border-radius:9px;border:1px solid var(--line);min-width:0">
+   <button id="cloudSignIn" class="primary" type="button">Đăng nhập & đồng bộ</button><button id="cloudSignUp" class="secondary" type="button">Tạo tài khoản</button>
+  </div><div id="cloudSignedIn" hidden style="margin-top:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span id="cloudUserLabel" class="muted"></span><button id="cloudSyncNow" class="secondary" type="button">Đồng bộ ngay</button><button id="cloudSignOut" class="ghost" type="button">Đăng xuất</button></div>
+  <p id="cloudStatus" role="status" style="margin:10px 0 0;font-size:13px" aria-live="polite"></p>
+ </div>
+</section>
+
+<main class="wrap">
+  <div id="overviewSummary">
+  <div class="topline" id="overviewTitle" hidden><div><h2>Tổng quan</h2><div class="muted">Theo dõi hoạt động quán bida của bạn</div></div><div class="small" id="todayLabel"></div></div>
+  <div class="stats">
+    <div class="stat green"><div class="label">Doanh thu tháng</div><div class="value" id="monthRevenue">0 ₫</div><div class="hint" id="monthCount">0 hóa đơn</div></div>
+    <div class="stat"><div class="label">Doanh thu hôm nay</div><div class="value" id="todayRevenue">0 ₫</div><div class="hint" id="todayCount">0 hóa đơn</div></div>
+    <div class="stat"><div class="label">Bàn đang chơi</div><div class="value" id="activeCount">0 / 6</div><div class="hint">Bàn đang tính giờ</div></div>
+    <div class="stat"><div class="label">Tổng doanh thu đã lưu</div><div class="value" id="allRevenue">0 ₫</div><div class="hint">Từ các hóa đơn đã chốt</div></div>
+  </div>
+  </div>
+  <nav class="tabs">
+    <button class="tab active" data-tab="tables">🎱 Quản lý bàn</button>
+    <button class="tab" data-tab="history">🧾 Lịch sử hóa đơn</button>
+    <button class="tab" data-tab="reports">📊 Báo cáo doanh thu</button>
+    <button class="tab" data-tab="settings">⚙ Cài đặt & dữ liệu</button>
+    <button class="tab" data-tab="donate" hidden>💙 Donate nhà phát triển</button>
+  </nav>
+
+  <section id="tablesSection">
+    <div class="section-head"><h3>Danh sách bàn</h3><button class="primary" id="addTable">＋ Thêm bàn</button></div>
+    <div class="grid" id="tableGrid"></div>
+    <div class="notice">Tiền giờ được tính theo phút thực chơi và cập nhật tự động. Khi bấm “Kết thúc & tính tiền”, hóa đơn sẽ được lưu vào lịch sử.</div>
+  </section>
+
+  <section id="historySection" class="hidden">
+    <div class="section-head"><h3>Lịch sử hóa đơn</h3><div class="field" style="min-width:160px"><label for="historyMonth">Lọc theo tháng</label><input type="month" id="historyMonth"></div></div>
+    <div class="panel"><div class="table-wrap"><table><thead><tr><th>Mã hóa đơn</th><th>Thời gian</th><th>Bàn</th><th>Thời lượng</th><th>Tiền giờ</th><th>Dịch vụ</th><th>Tổng tiền</th></tr></thead><tbody id="historyBody"></tbody></table></div></div>
+  </section>
+
+  <section id="reportsSection" class="hidden">
+    <div class="section-head"><h3>Báo cáo doanh thu</h3><div class="field" style="min-width:160px"><label for="reportMonth">Chọn tháng</label><input type="month" id="reportMonth"></div></div>
+    <div class="stats">
+      <div class="stat green"><div class="label">Doanh thu tháng chọn</div><div class="value" id="reportTotal">0 ₫</div><div class="hint">Tổng hóa đơn đã chốt</div></div>
+      <div class="stat"><div class="label">Số hóa đơn</div><div class="value" id="reportCount">0</div><div class="hint">Trong tháng chọn</div></div>
+      <div class="stat"><div class="label">Tiền giờ</div><div class="value" id="reportHours">0 ₫</div><div class="hint">Chưa gồm dịch vụ</div></div>
+      <div class="stat"><div class="label">Dịch vụ</div><div class="value" id="reportServices">0 ₫</div><div class="hint">Nước, đồ ăn, phụ thu</div></div>
+    </div>
+    <div class="panel"><div class="section-head"><h3>Doanh thu theo ngày</h3><span class="small">Các ngày có hóa đơn</span></div><div class="table-wrap"><table><thead><tr><th>Ngày</th><th>Số hóa đơn</th><th>Tiền giờ</th><th>Dịch vụ</th><th>Tổng doanh thu</th></tr></thead><tbody id="dailyBody"></tbody></table></div></div>
+  </section>
+
+  <section id="settingsSection" class="hidden">
+    <div class="section-head"><h3>Cài đặt quán</h3></div>
+    <div class="panel">
+      <div class="form-grid">
+        <div class="field"><label for="hourlyRate">Giá tiền mỗi giờ (VNĐ)</label><input id="hourlyRate" type="number" min="0" step="1000" value="60000"></div>
+        <div class="field"><label for="rounding">Cách tính thời gian</label><select id="rounding"><option value="minute">Tính theo phút thực tế</option><option value="ceil15">Làm tròn lên mỗi 15 phút</option><option value="ceil30">Làm tròn lên mỗi 30 phút</option><option value="ceil60">Làm tròn lên mỗi giờ</option></select></div>
+        <div class="field"><label for="defaultTables">Số bàn khi khởi tạo</label><input id="defaultTables" type="number" min="1" max="60" value="6" disabled></div>
+      </div>
+      <div class="actions"><button class="primary" id="saveSettings">Lưu cài đặt</button></div>
+    </div>
+    <div class="panel">
+      <h3 style="margin-top:0">Sao lưu dữ liệu</h3>
+      <p class="muted" style="font-size:13px">Dữ liệu đang lưu trên trình duyệt này. Hãy xuất file sao lưu định kỳ hoặc trước khi đổi máy/xóa dữ liệu trình duyệt.</p>
+      <div class="actions"><button class="secondary" id="exportData">⬇ Xuất bản sao lưu JSON</button><label class="secondary file-label" style="padding:10px 14px;border-radius:10px;cursor:pointer"><input id="importFile" type="file" accept=".json,application/json" style="display:none">⬆ Nhập bản sao lưu</label><button class="danger" id="clearData">Xóa toàn bộ dữ liệu</button></div>
+      <div class="notice">Lưu ý: localStorage không tự đồng bộ giữa điện thoại và máy tính. Muốn dùng chung nhiều thiết bị cần thêm máy chủ và cơ sở dữ liệu.</div>
+    </div>
+  </section>
+  <section id="donateSection" class="hidden">
+    <div class="donate-hero"><div class="donate-heart">💙</div><div><h3>Ủng hộ nhà phát triển</h3><p>Bida Manager được phát triển bởi <strong>Lê Quốc Anh</strong> và cung cấp hoàn toàn miễn phí. Nếu ứng dụng hữu ích với bạn, sự ủng hộ của bạn sẽ giúp mình có thêm động lực cải thiện các phiên bản tiếp theo.</p></div></div>
+    <div class="donate-layout">
+      <div class="panel"><div class="section-head"><h3>Thông tin chuyển khoản</h3></div>
+        <div id="transferPlaceholder" class="transfer-placeholder"><div class="placeholder-icon">▧</div><strong>Chưa có ảnh chuyển khoản</strong><p>Thêm ảnh <b>chuyenkhoan.jpg</b> vào cùng thư mục với index.html để hiển thị mã QR hoặc thông tin chuyển khoản tại đây.</p></div>
+        <img id="transferImage" class="transfer-image hidden" src="chuyenkhoan.jpg" alt="Thông tin chuyển khoản ủng hộ nhà phát triển">
+        <p class="small" style="line-height:1.7;margin-top:12px">Vui lòng kiểm tra đúng thông tin người nhận trước khi chuyển khoản. Không chuyển tiền nếu thông tin chưa rõ ràng.</p>
+      </div>
+      <div class="panel"><div class="section-head"><h3>Kết nối với nhà phát triển</h3></div><p class="muted" style="font-size:13px;line-height:1.7;margin-top:0">Theo dõi hoặc liên hệ qua các kênh bên dưới. Theo dõi hoặc liên hệ qua các kênh cá nhân bên dưới.</p>
+        <div class="social-links"><a class="social-link" href="https://www.tiktok.com/@gem2010_0410" target="_blank" rel="noopener noreferrer"><span><b>♪</b>TikTok</span><em>Mở TikTok ↗</em></a><a class="social-link" href="https://zalo.me/0896387698" target="_blank" rel="noopener noreferrer"><span><b>Z</b>Zalo</span><em>Mở Zalo ↗</em></a></div>
+      </div>
+    </div>
+  </section>
+  <footer>Thông tin được lưu tự động trong trình duyệt trên thiết bị này.</footer>
+</main>
+
+
+<div id="invoiceModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="invoiceTitle">
+  <div class="invoice-modal">
+    <div class="invoice-modal-head">
+      <div class="invoice-check">✓</div>
+      <div>
+        <h2 id="invoiceTitle">Thanh toán hoàn tất</h2>
+        <p id="invoiceSubtitle">Hóa đơn đã được lưu thành công</p>
+      </div>
+      <button type="button" class="modal-x" id="invoiceCloseX" aria-label="Đóng">×</button>
+    </div>
+    <div class="invoice-number" id="invoiceNumber">HÓA ĐƠN #0001</div>
+    <div class="invoice-lines">
+      <div class="invoice-line"><span>Bàn</span><strong id="invoiceTable">Bàn 1</strong></div>
+      <div class="invoice-line"><span>Thời gian chơi</span><strong id="invoiceDuration">0 giờ 0 phút</strong></div>
+      <div class="invoice-line"><span>Tiền giờ</span><strong id="invoiceTableCost">0 ₫</strong></div>
+      <div class="invoice-line"><span>Tiền dịch vụ</span><strong id="invoiceService">0 ₫</strong></div>
+    </div>
+    <div class="invoice-total"><span>TỔNG THANH TOÁN</span><strong id="invoiceTotal">0 ₫</strong></div>
+    <div class="invoice-modal-actions"><button type="button" class="primary" id="invoiceClose">Đóng</button></div>
+  </div>
+</div>
+
+
+<div id="serviceModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="serviceTitle">
+  <div class="invoice-modal service-modal">
+    <div class="invoice-modal-head">
+      <div class="service-icon">＋</div>
+      <div>
+        <h2 id="serviceTitle">Thêm dịch vụ</h2>
+        <p id="serviceSubtitle">Chọn loại dịch vụ và nhập số tiền</p>
+      </div>
+      <button type="button" class="modal-x" id="serviceCloseX" aria-label="Đóng">×</button>
+    </div>
+    <form id="serviceForm">
+      <div class="service-form-body">
+        <div class="field">
+          <label for="serviceType">1. Loại dịch vụ</label>
+          <select id="serviceType" required>
+            <option value="Nước">🥤 Nước</option>
+            <option value="Thuốc lá">🚬 Thuốc lá</option>
+            <option value="Hột quẹt">🔥 Hột quẹt</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="serviceAmount">2. Số tiền cộng thêm (VNĐ)</label>
+          <input id="serviceAmount" type="number" min="0" step="1000" inputmode="numeric" placeholder="Ví dụ: 10000" required>
+          <div class="service-amount-preview" id="serviceAmountPreview">0 ₫</div>
+        </div>
+      </div>
+      <div class="invoice-modal-actions">
+        <button type="button" class="secondary" id="serviceCancel">Hủy</button>
+        <button type="submit" class="primary">＋ Thêm vào hóa đơn</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="loadingScreen" aria-label="Đang tải ứng dụng"><div class="loading-card"><div class="loading-mark">🎱</div><h1>Bida Manager</h1><p>Quản lý quán bida · Đơn giản và miễn phí</p><div class="loading-track"><span></span></div></div></div>
+<div id="welcomeDialog" class="welcome-shade hidden" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle"><div class="welcome-card"><div class="welcome-icon">✓</div><h2 id="welcomeTitle">Chào mừng đến với Bida Manager</h2><p>App được phát triển bởi <strong>Lê Quốc Anh</strong>, hoàn toàn miễn phí. Nếu muốn ủng hộ nhà phát triển, hãy mở menu <strong>☰ ba gạch</strong> và chọn mục <strong>Donate nhà phát triển</strong>.</p><button class="primary" id="welcomeContinue" style="width:100%;min-height:46px">Bắt đầu sử dụng</button></div></div>
+
+<script>
+(() => {
+  const KEY = 'bidaManager_v1';
+  const $ = id => document.getElementById(id);
+
+  $('invoiceClose').onclick=closeInvoice;
+  $('invoiceCloseX').onclick=closeInvoice;
+  $('invoiceModal').addEventListener('click',e=>{if(e.target===$('invoiceModal'))closeInvoice();});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeInvoice();});
+
+  const money = n => new Intl.NumberFormat('vi-VN',{style:'currency',currency:'VND',maximumFractionDigits:0}).format(Math.round(n||0));
+  const dateKey = d => {const x=new Date(d);return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`};
+  const monthKey = d => dateKey(d).slice(0,7);
+  const fmtDate = d => new Date(d).toLocaleString('vi-VN',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  const durationText = mins => `${Math.floor(mins/60)} giờ ${mins%60} phút`;
+
+  function showInvoice(inv){
+    $('invoiceNumber').textContent=`HÓA ĐƠN #${String(inv.id).padStart(4,'0')}`;
+    $('invoiceTable').textContent=inv.tableName;
+    $('invoiceDuration').textContent=durationText(inv.minutes);
+    $('invoiceTableCost').textContent=money(inv.tableCost);
+    $('invoiceService').textContent=money(inv.service);
+    $('invoiceTotal').textContent=money(total(inv));
+    $('invoiceModal').classList.remove('hidden');
+    $('invoiceClose').focus();
+  }
+  function closeInvoice(){$('invoiceModal').classList.add('hidden');}
+
+  let serviceTableId=null;
+  function openServiceModal(t){
+    serviceTableId=t.id;
+    $('serviceTitle').textContent=`Thêm dịch vụ · ${t.name}`;
+    $('serviceType').value='Nước';
+    $('serviceAmount').value='';
+    $('serviceAmountPreview').textContent=money(0);
+    $('serviceModal').classList.remove('hidden');
+    $('serviceAmount').focus();
+  }
+  function closeServiceModal(){$('serviceModal').classList.add('hidden');serviceTableId=null;}
+  $('serviceAmount').addEventListener('input',()=>{$('serviceAmountPreview').textContent=money(Math.max(0,Number($('serviceAmount').value)||0));});
+  $('serviceCancel').onclick=closeServiceModal;
+  $('serviceCloseX').onclick=closeServiceModal;
+  $('serviceModal').addEventListener('click',e=>{if(e.target===$('serviceModal'))closeServiceModal();});
+  $('serviceForm').addEventListener('submit',e=>{
+    e.preventDefault();
+    const t=state.tables.find(x=>x.id===serviceTableId);
+    const amount=Number($('serviceAmount').value);
+    if(!t||!t.start){alert('Bàn này không còn đang chơi.');closeServiceModal();return;}
+    if(!Number.isFinite(amount)||amount<=0){alert('Nhập số tiền lớn hơn 0.');$('serviceAmount').focus();return;}
+    const type=$('serviceType').value;
+    t.service=Number(t.service||0)+amount;
+    t.serviceItems=Array.isArray(t.serviceItems)?t.serviceItems:[];
+    t.serviceItems.push({type,amount,at:Date.now()});
+    t.serviceNote=t.serviceItems.map(x=>`${x.type}: ${money(x.amount)}`).join('; ');
+    save();closeServiceModal();renderAll();
+  });
+
+
+  const escapeHtml = s => String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const defaultState = () => ({settings:{hourlyRate:60000,rounding:'minute'},tables:Array.from({length:6},(_,i)=>({id:i+1,name:`Bàn ${i+1}`,start:null,service:0,serviceNote:''})),invoices:[],nextInvoice:1});
+  let state;
+  try { state = JSON.parse(localStorage.getItem(KEY)) || defaultState(); } catch { state = defaultState(); }
+  if(!state.settings) state.settings={hourlyRate:60000,rounding:'minute'};
+  if(!Array.isArray(state.tables)) state.tables=defaultState().tables;
+  if(!Array.isArray(state.invoices)) state.invoices=[];
+  if(!state.nextInvoice) state.nextInvoice=1;
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(state));if(window.bidaCloudSave)window.bidaCloudSave(state);}catch(e){alert('Không lưu được dữ liệu. Có thể trình duyệt đã hết dung lượng. Hãy xuất bản sao lưu.');}}
+  function elapsedMins(start, end=Date.now()){return Math.max(0,Math.ceil((end-start)/60000));}
+  function billableMins(mins){const mode=state.settings.rounding;if(mode==='ceil15')return Math.ceil(mins/15)*15;if(mode==='ceil30')return Math.ceil(mins/30)*30;if(mode==='ceil60')return Math.ceil(mins/60)*60;return mins;}
+  function tableCost(t,now=Date.now()){if(!t.start)return 0;return Math.round(billableMins(elapsedMins(t.start,now))*Number(state.settings.hourlyRate||0)/60);}
+  function total(inv){return Number(inv.tableCost||0)+Number(inv.service||0);}
+  function sum(list,fn){return list.reduce((a,x)=>a+fn(x),0);}
+  function setTab(tab){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));['tables','history','reports','settings','donate'].forEach(k=>$(k+'Section').classList.toggle('hidden',k!==tab));$('overviewSummary').classList.toggle('hidden',tab!=='reports');document.querySelectorAll('.drawer-link[data-go-tab]').forEach(b=>b.classList.toggle('active',b.dataset.goTab===tab));if(tab==='history')renderHistory();if(tab==='reports')renderReports();}
+  document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
+  // Quick-settings shortcut was removed in the menu redesign; do not bind a missing element.
+
+  const THEME_KEY='bidaManager_theme';
+  function applyTheme(theme){
+    const dark=theme==='dark';
+    document.body.classList.toggle('dark-theme',dark);
+    const btn=$('themeToggle');
+    btn.textContent=dark?'☀ Nền sáng':'🌙 Nền tối';
+    btn.setAttribute('aria-label',dark?'Chuyển sang nền sáng':'Chuyển sang nền tối');
+    try{localStorage.setItem(THEME_KEY,dark?'dark':'light')}catch{}
+  }
+  let savedTheme='light';
+  try{savedTheme=localStorage.getItem(THEME_KEY)||'light'}catch{}
+  applyTheme(savedTheme);
+  $('themeToggle').onclick=()=>applyTheme(document.body.classList.contains('dark-theme')?'light':'dark');
+
+  function renderStats(){
+    const now=new Date(),today=dateKey(now),month=monthKey(now);
+    const todayInv=state.invoices.filter(i=>dateKey(i.endedAt)===today),monthInv=state.invoices.filter(i=>monthKey(i.endedAt)===month);
+    $('todayLabel').textContent=now.toLocaleDateString('vi-VN',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+    $('monthRevenue').textContent=money(sum(monthInv,total));$('monthCount').textContent=`${monthInv.length} hóa đơn`;
+    $('todayRevenue').textContent=money(sum(todayInv,total));$('todayCount').textContent=`${todayInv.length} hóa đơn`;
+    $('activeCount').textContent=`${state.tables.filter(t=>t.start).length} / ${state.tables.length}`;
+    $('allRevenue').textContent=money(sum(state.invoices,total));
+  }
+  function renderTables(){
+    const now=Date.now();
+    $('tableGrid').innerHTML=state.tables.map(t=>{
+      const active=!!t.start, mins=active?elapsedMins(t.start,now):0;
+      const liveCost=active?tableCost(t,now):0;
+      return `<article class="table-card ${active?'playing':''}">
+        <div class="table-top"><h3>${escapeHtml(t.name)}</h3><span class="pill ${active?'on':''}">${active?'ĐANG CHƠI':'TRỐNG'}</span></div>
+        <div class="timer">${active?durationText(mins):'Sẵn sàng'}</div>
+        <div class="small">${active?'Bắt đầu: '+fmtDate(t.start):'Giá hiện tại: '+money(state.settings.hourlyRate)+'/giờ'}</div>
+        <div class="price" style="margin-top:10px">${money(liveCost)} <span class="small" style="font-weight:400;color:var(--muted)">tiền giờ</span></div>
+        ${active?`<div class="small" style="margin-top:5px">Dịch vụ tạm tính: ${money(t.service||0)}</div>`:''}
+        <div class="table-actions">${active?`<button class="secondary" data-act="service" data-id="${t.id}">＋ Dịch vụ</button><button class="primary" data-act="stop" data-id="${t.id}">Kết thúc</button>`:`<button class="primary" data-act="start" data-id="${t.id}">▶ Bắt đầu</button><button class="secondary" data-act="rename" data-id="${t.id}">Đổi tên</button>`}</div>
+      </article>`;
+    }).join('');
+    $('tableGrid').querySelectorAll('button').forEach(b=>b.onclick=()=>tableAction(b.dataset.act,Number(b.dataset.id)));
+    renderStats();
+  }
+  function tableAction(action,id){
+    const t=state.tables.find(x=>x.id===id);if(!t)return;
+    if(action==='start'){
+      if(t.start)return;
+      t.start=Date.now();t.service=0;t.serviceNote='';t.serviceItems=[];save();renderAll();
+    }else if(action==='stop'){
+      if(!t.start)return;
+      const endedAt=Date.now(),mins=elapsedMins(t.start,endedAt),charged=billableMins(mins),tableCost=Math.round(charged*Number(state.settings.hourlyRate||0)/60);
+      const inv={id:state.nextInvoice++,tableId:t.id,tableName:t.name,startedAt:t.start,endedAt,minutes:mins,billableMinutes:charged,tableCost,service:Number(t.service||0),serviceNote:t.serviceNote||'',serviceItems:Array.isArray(t.serviceItems)?t.serviceItems:[]};
+      state.invoices.unshift(inv);t.start=null;t.service=0;t.serviceNote='';t.serviceItems=[];save();renderAll();
+      showInvoice(inv);
+    }else if(action==='service'){
+      openServiceModal(t);
+    }else if(action==='rename'){
+      const name=prompt('Tên bàn mới:',t.name);if(name&&name.trim()){t.name=name.trim();save();renderAll();}
+    }
+  }
+  $('addTable').onclick=()=>{if(state.tables.length>=60){alert('Tối đa 60 bàn.');return;}const id=Math.max(0,...state.tables.map(t=>t.id))+1;const name=prompt('Tên bàn mới:',`Bàn ${id}`);if(!name||!name.trim())return;state.tables.push({id,name:name.trim(),start:null,service:0,serviceNote:''});save();renderAll();};
+  function renderHistory(){
+    const m=$('historyMonth').value||monthKey(new Date());$('historyMonth').value=m;
+    const list=state.invoices.filter(i=>monthKey(i.endedAt)===m);
+    $('historyBody').innerHTML=list.length?list.map(i=>`<tr><td>#${String(i.id).padStart(4,'0')}</td><td>${fmtDate(i.endedAt)}</td><td>${escapeHtml(i.tableName)}</td><td>${durationText(i.minutes)}</td><td>${money(i.tableCost)}</td><td>${money(i.service)}${i.serviceNote?`<div class="small">${escapeHtml(i.serviceNote)}</div>`:''}</td><td class="money">${money(total(i))}</td></tr>`).join(''):`<tr><td colspan="7" class="empty">Chưa có hóa đơn trong tháng này.</td></tr>`;
+  }
+  $('historyMonth').value=monthKey(new Date());$('historyMonth').addEventListener('change',renderHistory);
+  function renderReports(){
+    const m=$('reportMonth').value||monthKey(new Date());$('reportMonth').value=m;
+    const list=state.invoices.filter(i=>monthKey(i.endedAt)===m);
+    $('reportTotal').textContent=money(sum(list,total));$('reportCount').textContent=list.length;
+    $('reportHours').textContent=money(sum(list,i=>i.tableCost));$('reportServices').textContent=money(sum(list,i=>i.service));
+    const days={};list.forEach(i=>{const d=dateKey(i.endedAt);if(!days[d])days[d]=[];days[d].push(i);});
+    const keys=Object.keys(days).sort().reverse();
+    $('dailyBody').innerHTML=keys.length?keys.map(d=>{const a=days[d];return `<tr><td>${new Date(d+'T12:00:00').toLocaleDateString('vi-VN')}</td><td>${a.length}</td><td>${money(sum(a,i=>i.tableCost))}</td><td>${money(sum(a,i=>i.service))}</td><td class="money">${money(sum(a,total))}</td></tr>`}).join(''):`<tr><td colspan="5" class="empty">Chưa có doanh thu trong tháng này.</td></tr>`;
+  }
+  $('reportMonth').value=monthKey(new Date());$('reportMonth').addEventListener('change',renderReports);
+  $('saveSettings').onclick=()=>{const rate=Number($('hourlyRate').value);if(!Number.isFinite(rate)||rate<0){alert('Giá giờ không hợp lệ.');return;}state.settings.hourlyRate=rate;state.settings.rounding=$('rounding').value;save();renderAll();alert('Đã lưu cài đặt.');};
+  function loadSettings(){$('hourlyRate').value=state.settings.hourlyRate;$('rounding').value=state.settings.rounding||'minute';}
+  $('exportData').onclick=()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`sao-luu-bida-${dateKey(new Date())}.json`;a.click();URL.revokeObjectURL(url);};
+  $('importFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const data=JSON.parse(await f.text());if(!data||!Array.isArray(data.tables)||!Array.isArray(data.invoices)||!data.settings)throw new Error();if(!confirm('Nhập bản sao lưu sẽ thay thế dữ liệu hiện tại. Tiếp tục?'))return;state=data;save();loadSettings();renderAll();alert('Đã nhập bản sao lưu.');}catch{alert('File sao lưu không hợp lệ.');}e.target.value='';};
+  $('clearData').onclick=()=>{if(!confirm('Xóa toàn bộ bàn, hóa đơn và cài đặt? Không thể hoàn tác nếu chưa sao lưu.'))return;if(!confirm('Xác nhận lần cuối: bạn đã sao lưu dữ liệu cần giữ chưa?'))return;state=defaultState();save();loadSettings();renderAll();};
+  function renderAll(){renderTables();renderHistory();renderReports();}
+  loadSettings();renderAll();setInterval(()=>{if(! $('tablesSection').classList.contains('hidden'))renderTables();else renderStats();},15000);
+})();
+</script>
+<script>
+(() => {
+  const $id = id => document.getElementById(id);
+  const drawer=$id('appDrawer'), shade=$id('drawerShade'), menu=$id('menuToggle');
+  function openDrawer(){drawer.classList.add('open');shade.classList.add('open');document.body.classList.add('drawer-open');drawer.setAttribute('aria-hidden','false');menu.setAttribute('aria-expanded','true');}
+  function closeDrawer(){drawer.classList.remove('open');shade.classList.remove('open');document.body.classList.remove('drawer-open');drawer.setAttribute('aria-hidden','true');menu.setAttribute('aria-expanded','false');}
+  menu.addEventListener('click',openDrawer);$id('drawerClose').addEventListener('click',closeDrawer);shade.addEventListener('click',closeDrawer);
+  document.querySelectorAll('[data-go-tab]').forEach(b=>b.addEventListener('click',()=>{const target=document.querySelector('.tab[data-tab="'+b.dataset.goTab+'"]');if(target)target.click();closeDrawer();window.scrollTo({top:0,behavior:'smooth'});}));
+  $id('drawerTheme').addEventListener('click',()=>{$id('themeToggle').click();closeDrawer();});
+  const img=$id('transferImage'),placeholder=$id('transferPlaceholder');
+  img.addEventListener('load',()=>{img.classList.remove('hidden');placeholder.classList.add('hidden');});
+  img.addEventListener('error',()=>{img.classList.add('hidden');placeholder.classList.remove('hidden');});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDrawer();$id('welcomeDialog').classList.add('hidden');}});
+  const splash=$id('loadingScreen'),welcome=$id('welcomeDialog');
+  function finishLoading(){setTimeout(()=>{splash.classList.add('dismissed');setTimeout(()=>welcome.classList.remove('hidden'),220);},700);}
+  $id('welcomeContinue').addEventListener('click',()=>welcome.classList.add('hidden'));
+  if(document.readyState==='complete')finishLoading();else window.addEventListener('load',finishLoading,{once:true});
+})();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* SUPABASE SETUP: paste your project's URL and anon/publishable key here. Never use service_role/secret key in a browser. */
+(() => {
+ const SUPABASE_URL = 'https://rwdkkoehcpvkwezjfeho.supabase.co';
+ const SUPABASE_ANON_KEY = 'sb_publishable_2WTLQZhDo1dnO3IKA0QX7Q_HUiuRjIo';
+ const status = document.getElementById('cloudStatus');
+ const notice = document.getElementById('cloudConfigNotice');
+ const form = document.getElementById('cloudAuthForm');
+ const signed = document.getElementById('cloudSignedIn');
+ const say = (s, bad=false) => { status.textContent=s; status.style.color=bad?'#ff6f76':'var(--green)'; };
+ if (!window.supabase || SUPABASE_URL.includes('PASTE_') || SUPABASE_ANON_KEY.includes('PASTE_')) {
+   say('Chưa kết nối cơ sở dữ liệu. Tạo Supabase project, chạy file supabase-setup.sql rồi điền URL và anon key vào file HTML.', true);
+   return;
+ }
+ notice.textContent='Supabase đã được cấu hình. Đăng nhập để tải dữ liệu từ đám mây.';
+ const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+ let user=null, timer=null, applyingCloud=false;
+ const stateKey='bidaManager_v1';
+ function localState(){try{return JSON.parse(localStorage.getItem(stateKey)||'null')}catch{return null}}
+ async function cloudLoad(){
+  const {data,error}=await client.from('bida_app_data').select('payload').eq('user_id',user.id).maybeSingle();
+  if(error) throw error;
+  if(data && data.payload){ applyingCloud=true; localStorage.setItem(stateKey,JSON.stringify(data.payload)); location.reload(); return; }
+  const current=localState();
+  if(current) await cloudSave(current);
+  say(current?'Đã đưa dữ liệu trên thiết bị này lên đám mây.':'Đã kết nối. Chưa có dữ liệu cũ để đồng bộ.');
+ }
+ async function cloudSave(value){
+  if(!user||applyingCloud)return;
+  const {error}=await client.from('bida_app_data').upsert({user_id:user.id,payload:value,updated_at:new Date().toISOString()},{onConflict:'user_id'});
+  if(error) say('Lỗi đồng bộ: '+error.message,true); else say('Đã lưu lên đám mây '+new Date().toLocaleTimeString('vi-VN'));
+ }
+ window.bidaCloudSave=(value)=>{if(user){clearTimeout(timer);timer=setTimeout(()=>cloudSave(value),500)}};
+ async function refreshSession(){
+  const {data:{session}}=await client.auth.getSession();
+  user=session?.user||null; form.hidden=!!user; signed.hidden=!user;
+  if(user){document.getElementById('cloudUserLabel').textContent='Đã đăng nhập: '+user.email;try{await cloudLoad()}catch(e){say('Không tải được dữ liệu: '+e.message,true)}}
+ }
+ document.getElementById('cloudSignUp').onclick=async()=>{const email=document.getElementById('cloudEmail').value.trim(),password=document.getElementById('cloudPassword').value;if(!email||password.length<6)return say('Nhập email hợp lệ và mật khẩu ít nhất 6 ký tự.',true);say('Đang tạo tài khoản…');const {error}=await client.auth.signUp({email,password});if(error)say(error.message,true);else say('Đã gửi yêu cầu tạo tài khoản. Nếu bật xác nhận email, hãy mở email xác nhận rồi đăng nhập.');};
+ document.getElementById('cloudSignIn').onclick=async()=>{const email=document.getElementById('cloudEmail').value.trim(),password=document.getElementById('cloudPassword').value;say('Đang đăng nhập…');const {error}=await client.auth.signInWithPassword({email,password});if(error)say(error.message,true);else await refreshSession();};
+ document.getElementById('cloudSignOut').onclick=async()=>{await client.auth.signOut();user=null;form.hidden=false;signed.hidden=true;say('Đã đăng xuất. Dữ liệu cục bộ trên thiết bị vẫn được giữ.');};
+ document.getElementById('cloudSyncNow').onclick=async()=>{try{await cloudSave(localState());say('Đã yêu cầu đồng bộ dữ liệu.')}catch(e){say(e.message,true)}};
+ client.auth.onAuthStateChange(()=>setTimeout(refreshSession,0)); refreshSession();
+ // Refresh cloud snapshot when tab becomes active. For multi-device live merging, avoid editing the same data simultaneously.
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&user)cloudLoad().catch(e=>say('Lỗi tải dữ liệu: '+e.message,true))});
+})();
+</script>
+
+</body>
+</html>
